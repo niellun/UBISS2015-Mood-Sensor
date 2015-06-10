@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.util.Log;
 
 import com.aware.providers.Accelerometer_Provider;
+import com.aware.providers.Locations_Provider;
 
 /**
  * Created by niellune on 09.06.15.
@@ -31,7 +32,6 @@ public class AccelerometerContentObserver extends ContentObserver {
 
         Log.d("ACO", "OnChange");
 
-
         Cursor raw_data = _context.getContentResolver()
                 .query(Accelerometer_Provider.Accelerometer_Data.CONTENT_URI,
                         new String[]{Accelerometer_Provider.Accelerometer_Data.VALUES_0,
@@ -40,6 +40,7 @@ public class AccelerometerContentObserver extends ContentObserver {
                         Accelerometer_Provider.Accelerometer_Data.TIMESTAMP + " > " + (System.currentTimeMillis()-(10*3600*1000)),
                         null,
                         Accelerometer_Provider.Accelerometer_Data.TIMESTAMP + " DESC LIMIT 100");
+
 
         if(raw_data==null)
             return;
