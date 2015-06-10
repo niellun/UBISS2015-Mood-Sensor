@@ -12,7 +12,9 @@ import android.widget.TextView;
 import com.aware.Accelerometer;
 import com.aware.Aware;
 import com.aware.Aware_Preferences;
+import com.aware.ESM;
 import com.aware.providers.Accelerometer_Provider;
+import com.aware.ui.ESM_Queue;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -26,9 +28,53 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
         TextView tv = (TextView)findViewById(R.id.main);
 
-        Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_ACCELEROMETER, true);
+        //Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_ACCELEROMETER, false);
+        Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_ESM, true);
 
-        _receiver = new AccelBroadcastReceiver(tv);
+        //Define the ESM to be displayed
+        String esmString = "[{'esm': {\n" +
+                "'esm_type': 4,\n" +
+                "'esm_title': 'ESM Likert',\n" +
+                "'esm_instructions': 'How happy are you?',\n" +
+                "'esm_likert_max': 5,\n" +
+                "'esm_likert_max_label': 'Sad',\n" +
+                "'esm_likert_min_label': 'Happy',\n" +
+                "'esm_likert_step': 1,\n" +
+                "'esm_submit': 'OK',\n" +
+                "'esm_expiration_threashold': 60,\n" +
+                "'esm_trigger': 'AWARE Tester'\n" +
+                "}}," +
+                "{'esm': {\n" +
+                "'esm_type': 4,\n" +
+                "'esm_title': 'ESM Likert',\n" +
+                "'esm_instructions': 'How calm are you?',\n" +
+                "'esm_likert_max': 5,\n" +
+                "'esm_likert_max_label': 'Angry',\n" +
+                "'esm_likert_min_label': 'Calm',\n" +
+                "'esm_likert_step': 1,\n" +
+                "'esm_submit': 'OK',\n" +
+                "'esm_expiration_threashold': 60,\n" +
+                "'esm_trigger': 'AWARE Tester'\n" +
+                "}},{'esm': {\n" +
+                "'esm_type': 4,\n" +
+                "'esm_title': 'ESM Likert',\n" +
+                "'esm_instructions': 'How in Love are you?',\n" +
+                "'esm_likert_max': 5,\n" +
+                "'esm_likert_max_label': 'Lonely',\n" +
+                "'esm_likert_min_label': 'In love',\n" +
+                "'esm_likert_step': 1,\n" +
+                "'esm_submit': 'OK',\n" +
+                "'esm_expiration_threashold': 60,\n" +
+                "'esm_trigger': 'AWARE Tester'\n" +
+                "}}]";
+
+        //Queue the ESM to be displayed when possible
+        Intent esm = new Intent(ESM.ACTION_AWARE_QUEUE_ESM);
+        esm.putExtra(ESM.EXTRA_ESM, esmString);
+        sendBroadcast(esm);
+
+
+       /* _receiver = new AccelBroadcastReceiver(tv);
         IntentFilter filter = new IntentFilter();
         filter.addAction(Accelerometer.ACTION_AWARE_ACCELEROMETER);
         registerReceiver(_receiver, filter);
@@ -38,7 +84,7 @@ public class MainActivity extends ActionBarActivity {
                 Accelerometer_Provider.Accelerometer_Data.CONTENT_URI,
                 true,
                 _observer
-        );
+        );*/
 
         sendBroadcast(new Intent(Aware.ACTION_AWARE_REFRESH));
     }
@@ -55,6 +101,7 @@ public class MainActivity extends ActionBarActivity {
         super.onDestroy();
 
         Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_ACCELEROMETER, false);
+        Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_ESM, false);
         sendBroadcast(new Intent(Aware.ACTION_AWARE_REFRESH));
         unregisterReceiver(_receiver);
         getContentResolver().unregisterContentObserver(_observer);
