@@ -15,11 +15,12 @@ import com.aware.providers.Accelerometer_Provider;
  */
 public class AccelBroadcastReceiver extends BroadcastReceiver {
 
-    private TextView _tv;
+   private TextView _tv;
+
 
     public AccelBroadcastReceiver(TextView tv) {
         _tv = tv;
-    }
+}
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -31,7 +32,7 @@ public class AccelBroadcastReceiver extends BroadcastReceiver {
         double z = cv.getAsDouble(Accelerometer_Provider.Accelerometer_Data.VALUES_2);
 
         double len = Math.sqrt(x * x + y * y + z * z);
-        Log.d("BR", "content " + len);
+        Log.d("BR", "Acceleration " + len);
         _tv.setText(Double.toString(len));
 
        // Log.d("BR", cv.toString());

@@ -2,6 +2,7 @@ package com.psicode.aware_mood_sensor;
 
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
@@ -10,35 +11,70 @@ import android.view.MenuItem;
 import android.widget.TextView;
 
 import com.aware.Accelerometer;
+import com.aware.Applications;
 import com.aware.Aware;
 import com.aware.Aware_Preferences;
+import com.aware.Locations;
 import com.aware.providers.Accelerometer_Provider;
+import com.aware.providers.Applications_Provider;
+import com.aware.providers.Communication_Provider;
+import com.aware.providers.Keyboard_Provider;
+import com.aware.providers.Locations_Provider;
 
 
 public class MainActivity extends ActionBarActivity {
 
     private AccelBroadcastReceiver _receiver;
     private AccelerometerContentObserver _observer;
+    private LocationBroadcastReceiver _receiverlocation;
+    private LocationContentObserver _observerlocation;
+    private ComContentObserver _observercommunication;
+    private AppContentObserver _observerapplication;
+    private KeyContentObserver _observerkeyboard;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         TextView tv = (TextView)findViewById(R.id.main);
+        TextView latitude = (TextView)findViewById(R.id.latitude);
 
         Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_ACCELEROMETER, true);
+        Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_LOCATION_GPS, true);
+        Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_COMMUNICATION_EVENTS, true);
+        Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_CALLS, true);
+        Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_APPLICATIONS, true);
+        Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_NOTIFICATIONS, true);
+        Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_KEYBOARD, true);
+        Aware.setSetting(getApplicationContext(), Aware_Preferences.FREQUENCY_LOCATION_GPS, 20000);
+        Aware.setSetting(getApplicationContext(), Aware_Preferences.MIN_LOCATION_GPS_ACCURACY, 150);
+        Aware.setSetting(getApplicationContext(), Aware_Preferences.LOCATION_EXPIRATION_TIME, 300);
 
         _receiver = new AccelBroadcastReceiver(tv);
         IntentFilter filter = new IntentFilter();
         filter.addAction(Accelerometer.ACTION_AWARE_ACCELEROMETER);
         registerReceiver(_receiver, filter);
 
+        _receiverlocation = new LocationBroadcastReceiver(latitude);
+        IntentFilter filter_location = new IntentFilter();
+        filter_location.addAction(Locations.ACTION_AWARE_LOCATIONS);
+        filter_location.addAction(Locations.ACTION_AWARE_GPS_LOCATION_ENABLED);
+        registerReceiver(_receiverlocation, filter_location);
+
         _observer = new AccelerometerContentObserver(new Handler(), getApplicationContext());
-        getContentResolver().registerContentObserver(
-                Accelerometer_Provider.Accelerometer_Data.CONTENT_URI,
-                true,
-                _observer
-        );
+        getContentResolver().registerContentObserver(Accelerometer_Provider.Accelerometer_Data.CONTENT_URI, true, _observer);
+
+        _observerlocation = new LocationContentObserver(new Handler(), getApplicationContext());
+        getContentResolver().registerContentObserver(Locations_Provider.Locations_Data.CONTENT_URI, true, _observerlocation);
+
+        _observercommunication = new ComContentObserver(new Handler(), getApplicationContext());
+        getContentResolver().registerContentObserver(Communication_Provider.Calls_Data.CONTENT_URI, true, _observercommunication);
+
+        _observerapplication = new AppContentObserver(new Handler(), getApplicationContext());
+        getContentResolver().registerContentObserver(Applications_Provider.Applications_Notifications.CONTENT_URI, true, _observerapplication);
+
+        _observerkeyboard = new KeyContentObserver(new Handler(), getApplicationContext());
+        getContentResolver().registerContentObserver(Keyboard_Provider.Keyboard_Data.CONTENT_URI, true, _observerkeyboard);
 
         sendBroadcast(new Intent(Aware.ACTION_AWARE_REFRESH));
     }
@@ -55,9 +91,20 @@ public class MainActivity extends ActionBarActivity {
         super.onDestroy();
 
         Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_ACCELEROMETER, false);
+        Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_LOCATION_GPS, false);
+        Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_COMMUNICATION_EVENTS, false);
+        Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_CALLS, false);
+        Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_APPLICATIONS, false);
+        Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_NOTIFICATIONS, false);
+        Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_KEYBOARD, false);
         sendBroadcast(new Intent(Aware.ACTION_AWARE_REFRESH));
         unregisterReceiver(_receiver);
+        unregisterReceiver(_receiverlocation);
         getContentResolver().unregisterContentObserver(_observer);
+        getContentResolver().unregisterContentObserver(_observerlocation);
+        getContentResolver().unregisterContentObserver(_observercommunication);
+        getContentResolver().unregisterContentObserver(_observerapplication);
+        getContentResolver().unregisterContentObserver(_observerkeyboard);
     }
 
     @Override
