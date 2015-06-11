@@ -47,7 +47,7 @@ public class GlobalAccel implements SensorEventListener {
             {
                 Label = "";
             }
-            Log.d("LBL", Label);
+            Log.d("LBL", " "+Label+"\r\n");
         }
     }
 

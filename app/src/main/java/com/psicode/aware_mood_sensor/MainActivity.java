@@ -95,19 +95,19 @@ public class MainActivity extends ActionBarActivity {
 
 
                         Intent Acc_fall = new Intent(LinearAccelerometer.ACTION_AWARE_LINEAR_LABEL);
-                        Acc_fall.putExtra(LinearAccelerometer.EXTRA_LABEL, " ");
+                        Acc_fall.putExtra(LinearAccelerometer.EXTRA_LABEL, "");
                         getApplicationContext().sendBroadcast(Acc_fall);
 
                         Intent gyo_fall = new Intent(Gyroscope.ACTION_AWARE_GYROSCOPE_LABEL);
-                        gyo_fall.putExtra(Gyroscope.EXTRA_LABEL, " ");
+                        gyo_fall.putExtra(Gyroscope.EXTRA_LABEL, "");
                         getApplicationContext().sendBroadcast(gyo_fall);
 
                         Intent rota_fall = new Intent(Rotation.ACTION_AWARE_ROTATION_LABEL);
-                        rota_fall.putExtra(Rotation.EXTRA_LABEL, " ");
+                        rota_fall.putExtra(Rotation.EXTRA_LABEL, "");
                         getApplicationContext().sendBroadcast(rota_fall);
 
                         Intent gra_fall = new Intent(Gravity.ACTION_AWARE_GRAVITY_LABEL);
-                        gra_fall.putExtra(Gravity.EXTRA_LABEL, " ");
+                        gra_fall.putExtra(Gravity.EXTRA_LABEL, "");
                         getApplicationContext().sendBroadcast(gra_fall);
 
 
