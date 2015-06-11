@@ -25,11 +25,13 @@ public class SensorBroadcastReceiver extends BroadcastReceiver {
 
     private final Context _context;
     private String _label;
-    private boolean _needSet;
+    private volatile boolean _needSet;
+    private volatile boolean _needReset;
 
     public SensorBroadcastReceiver(Context context) {
         _context = context;
         _label = "";
+        _needReset = false;
     }
 
     public void SetSensorLabels(String label) {
@@ -47,28 +49,50 @@ public class SensorBroadcastReceiver extends BroadcastReceiver {
     }
 
     public void Start(String label) {
+        Log.d("BR", "Start");
+
         _label = label;
         _needSet = true;
+        _needReset = false;
     }
 
     public void Stop() {
+        Log.d("BR", "Stop");
+
         _needSet = false;
+        _needReset = false;
         SetSensorLabels("");
     }
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (intent.getAction() == LinearAccelerometer.ACTION_AWARE_LINEAR_LABEL) {
 
-            if (_needSet) {
-                double x = intent.getDoubleExtra(Linear_Accelerometer_Provider.Linear_Accelerometer_Data.VALUES_0, 0);
-                double y = intent.getDoubleExtra(Linear_Accelerometer_Provider.Linear_Accelerometer_Data.VALUES_1, 0);
-                double z = intent.getDoubleExtra(Linear_Accelerometer_Provider.Linear_Accelerometer_Data.VALUES_2, 0);
-                double len = x * x + y * y + z * z;
+        if (intent.getAction() == LinearAccelerometer.ACTION_AWARE_LINEAR_ACCELEROMETER) {
+            Log.d("BR", "Accel");
 
-                if (len > 50) {
+            if (_needSet || _needReset) {
+                ContentValues cv = intent.getParcelableExtra(LinearAccelerometer.EXTRA_DATA);
+                double x = cv.getAsDouble(Linear_Accelerometer_Provider.Linear_Accelerometer_Data.VALUES_0);
+                double y = cv.getAsDouble(Linear_Accelerometer_Provider.Linear_Accelerometer_Data.VALUES_1);
+                double z = cv.getAsDouble(Linear_Accelerometer_Provider.Linear_Accelerometer_Data.VALUES_2);
+                double len = x*x+y*y+z*z;
+
+                Log.d("BR", "Acc "+len);
+
+                if (_needSet && len > 50) {
+                    Log.d("BR", "SET");
+
                     _needSet = false;
+                    _needReset = true;
                     SetSensorLabels(_label);
+
+                    MediaPlayer.create(_context, RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
+                            .start();
+                }
+
+                if(_needReset && len <10)
+                {
+                    Stop();
 
                     MediaPlayer.create(_context, RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
                             .start();
@@ -76,15 +100,15 @@ public class SensorBroadcastReceiver extends BroadcastReceiver {
             }
         }
 
-        if (intent.getAction() == Gyroscope.ACTION_AWARE_GYROSCOPE_LABEL) {
+        if (intent.getAction() == GlobalAccel.ACTION_NEW_DATA) {
 
         }
 
-        if (intent.getAction() == Rotation.ACTION_AWARE_ROTATION_LABEL) {
+        if (intent.getAction() == Rotation.ACTION_AWARE_ROTATION) {
 
         }
 
-        if (intent.getAction() == Gravity.ACTION_AWARE_GRAVITY_LABEL) {
+        if (intent.getAction() == Gravity.ACTION_AWARE_GRAVITY) {
 
         }
 

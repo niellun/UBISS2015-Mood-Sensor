@@ -21,9 +21,9 @@ import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends ActionBarActivity {
 
-    private final SensorBroadcastReceiver _broadcastReceiver;
     private final ScheduledExecutorService _scheduler;
 
+    private SensorBroadcastReceiver _broadcastReceiver;
     private GlobalAccel _globalAccelerometer;
     private Button _btnSwithOn;
     private Integer _counter;
@@ -31,6 +31,13 @@ public class MainActivity extends ActionBarActivity {
     public MainActivity() {
         _scheduler = Executors.newSingleThreadScheduledExecutor();
         _counter = 0;
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        _btnSwithOn = (Button) findViewById(R.id.button);
 
         // Set broadcast receiver
         _broadcastReceiver = new SensorBroadcastReceiver(getApplicationContext());
@@ -40,13 +47,6 @@ public class MainActivity extends ActionBarActivity {
         filter.addAction(Gravity.ACTION_AWARE_GRAVITY);
         filter.addAction(GlobalAccel.ACTION_NEW_DATA);
         registerReceiver(_broadcastReceiver, filter);
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        _btnSwithOn = (Button) findViewById(R.id.button);
 
         // Turn sensors on
         _globalAccelerometer = new GlobalAccel(getApplicationContext());
