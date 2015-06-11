@@ -2,11 +2,7 @@ package com.psicode.aware_mood_sensor;
 
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.media.MediaPlayer;
-import android.media.RingtoneManager;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -14,20 +10,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.aware.Accelerometer;
 import com.aware.Aware;
 import com.aware.Aware_Preferences;
 import com.aware.Gravity;
 import com.aware.Gyroscope;
 import com.aware.LinearAccelerometer;
 import com.aware.Rotation;
-import com.aware.providers.Accelerometer_Provider;
-import com.aware.providers.Gravity_Provider;
-import com.aware.providers.Gyroscope_Provider;
-import com.aware.providers.Linear_Accelerometer_Provider;
-import com.aware.providers.Rotation_Provider;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -35,20 +24,39 @@ import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends ActionBarActivity {
 
-    private AccelBroadcastReceiver _receiver;
-    private AccelerometerContentObserver _observer;
-    private GlobalAccel gaccel;
+    private SensorBroadcastReceiver mBroadcastReceiver;
+    private GlobalAccel mGlobalAceelerometer;
     private static final ScheduledExecutorService worker = Executors.newSingleThreadScheduledExecutor();
     private static Button switcher_on;
-    private static TextView tv;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        tv = (TextView) findViewById(R.id.main);
+
+        // Turn sensors on
+        mGlobalAceelerometer = new GlobalAccel(getApplicationContext());
+        Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_LINEAR_ACCELEROMETER, true);
+        Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_GYROSCOPE, true);
+        Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_ROTATION, true);
+        Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_GRAVITY, true);
+
+        mBroadcastReceiver = new SensorBroadcastReceiver();
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(LinearAccelerometer.ACTION_AWARE_LINEAR_ACCELEROMETER);
+        filter.addAction(Rotation.ACTION_AWARE_ROTATION);
+        filter.addAction(Gravity.ACTION_AWARE_GRAVITY);
+        filter.addAction(GlobalAccel.ACTION_NEW_DATA);
+        registerReceiver(mBroadcastReceiver, filter);
+
+        sendBroadcast(new Intent(Aware.ACTION_AWARE_REFRESH));
+
+
+
+
+
+
         switcher_on = (Button) findViewById(R.id.button);
-        Button switcher_off = (Button) findViewById(R.id.button2);
 
         switcher_on.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -151,28 +159,7 @@ public class MainActivity extends ActionBarActivity {
             }
         });
 
-        gaccel = new GlobalAccel(getApplicationContext());
-        Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_LINEAR_ACCELEROMETER, true);
-        Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_GYROSCOPE, true);
-        Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_ROTATION, true);
-        Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_GRAVITY, true);
 
-        _receiver = new AccelBroadcastReceiver(tv);
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(LinearAccelerometer.ACTION_AWARE_LINEAR_ACCELEROMETER);
-        filter.addAction(Gyroscope.ACTION_AWARE_GYROSCOPE);
-        filter.addAction(Rotation.ACTION_AWARE_ROTATION);
-        filter.addAction(Gravity.ACTION_AWARE_GRAVITY);
-        filter.addAction(GlobalAccel.ACTION_NEW_DATA);
-        registerReceiver(_receiver, filter);
-
-        _observer = new AccelerometerContentObserver(new Handler(), getApplicationContext());
-        getContentResolver().registerContentObserver(Linear_Accelerometer_Provider.Linear_Accelerometer_Data.CONTENT_URI, true, _observer);
-        getContentResolver().registerContentObserver(Gyroscope_Provider.Gyroscope_Data.CONTENT_URI, true, _observer);
-        getContentResolver().registerContentObserver(Rotation_Provider.Rotation_Data.CONTENT_URI, true, _observer);
-        getContentResolver().registerContentObserver(Gravity_Provider.Gravity_Data.CONTENT_URI, true, _observer);
-
-        sendBroadcast(new Intent(Aware.ACTION_AWARE_REFRESH));
     }
 
     @Override
@@ -187,8 +174,8 @@ public class MainActivity extends ActionBarActivity {
         super.onDestroy();
         //       Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_ACCELEROMETER, false);
         sendBroadcast(new Intent(Aware.ACTION_AWARE_REFRESH));
-        unregisterReceiver(_receiver);
-        gaccel.Destroy();
+        unregisterReceiver(mBroadcastReceiver);
+        mGlobalAceelerometer.Destroy();
     }
 
     @Override

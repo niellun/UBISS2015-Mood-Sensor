@@ -18,13 +18,13 @@ import com.aware.providers.Linear_Accelerometer_Provider;
 /**
  * Created by niellune on 09.06.15.
  */
-public class AccelBroadcastReceiver extends BroadcastReceiver {
+public class SensorBroadcastReceiver extends BroadcastReceiver {
 
    private TextView _tv;
 
 
-    public AccelBroadcastReceiver(TextView tv) {
-        _tv = tv;
+    public SensorBroadcastReceiver() {
+
 }
 
     @Override
