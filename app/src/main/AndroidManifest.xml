@@ -27,7 +27,7 @@
 
         <receiver android:name="com.psicode.aware_mood_sensor.GlobalAccel$Labeler" >
             <intent-filter>
-                <action android:name="LinearAccelerometer.ACTION_AWARE_LINEAR_LABEL" />
+                <action android:name="ACTION_AWARE_LINEAR_LABEL" />
             </intent-filter>
         </receiver>
 

@@ -35,11 +35,18 @@ public class GlobalAccel implements SensorEventListener {
     public static final String Y = "Y_VALUE";
     public static final String Z = "Z_VALUE";
 
+
     public static class Labeler extends BroadcastReceiver
     {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Label = intent.getStringExtra(LinearAccelerometer.EXTRA_LABEL);
+            if(intent.hasExtra(LinearAccelerometer.EXTRA_LABEL)) {
+                Label = intent.getStringExtra(LinearAccelerometer.EXTRA_LABEL);
+            }
+            else
+            {
+                Label = "";
+            }
             Log.d("LBL", Label);
         }
     }
