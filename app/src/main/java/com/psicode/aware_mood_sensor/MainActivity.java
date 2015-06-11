@@ -133,23 +133,6 @@ public class MainActivity extends ActionBarActivity {
             }
         });
 
-        switcher_off.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-
-                /*
-                // Perform action on click
-                Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_LINEAR_ACCELEROMETER, false);
-                Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_GYROSCOPE, false);
-                Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_ROTATION, false);
-                Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_GRAVITY, false);
-                Toast.makeText(getApplicationContext(), "Sensors Off!", Toast.LENGTH_SHORT).show();
-
-                sendBroadcast(new Intent(Aware.ACTION_AWARE_REFRESH));
-
-                */
-            }
-        });
-
         gaccel = new GlobalAccel(getApplicationContext());
         Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_LINEAR_ACCELEROMETER, true);
         Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_GYROSCOPE, true);
