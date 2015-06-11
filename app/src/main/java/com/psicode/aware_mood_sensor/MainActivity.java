@@ -58,6 +58,10 @@ public class MainActivity extends ActionBarActivity {
                 Log.d("BTN", "ON");
 
                 switcher_on.setText("THROW AWAY");
+                Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                mp.start();
+                Toast.makeText(getApplicationContext(), "Throw it in 3 seconds!", Toast.LENGTH_SHORT).show();
 
                 Intent Acc_fall = new Intent(LinearAccelerometer.ACTION_AWARE_LINEAR_LABEL);
                 Acc_fall.putExtra(LinearAccelerometer.EXTRA_LABEL, "FALL");
@@ -75,9 +79,6 @@ public class MainActivity extends ActionBarActivity {
                 gra_fall.putExtra(Gravity.EXTRA_LABEL, "FALL");
                 getApplicationContext().sendBroadcast(gra_fall);
 
-
-
-
                 Runnable task = new Runnable() {
 
                     public void run() {
@@ -91,8 +92,6 @@ public class MainActivity extends ActionBarActivity {
                                 switcher_on.setText("TURN IT ON");
                             }
                         });
-
-
 
                         Intent Acc_fall = new Intent(LinearAccelerometer.ACTION_AWARE_LINEAR_LABEL);
                         Acc_fall.putExtra(LinearAccelerometer.EXTRA_LABEL, "");
