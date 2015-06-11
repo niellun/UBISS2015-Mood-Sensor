@@ -26,7 +26,7 @@ public class GlobalAccelProvider extends ContentProvider {
      * Provider authority: com.aware.plugin.lux_meter.provider.lux_meter
      */
 
-    public static String AUTHORITY = "com.aware.sensor.global_accelerometer";
+    public static String AUTHORITY = "com.psicode.aware_mood_sensor.sensor.global_accelerometer";
 
     public static final String DATABASE_NAME = Environment.getExternalStorageDirectory() + "/AWARE/sensor_global_accelerometer.db";
 
@@ -51,9 +51,9 @@ public class GlobalAccelProvider extends ContentProvider {
     public static final class GlobalAccel_Data implements BaseColumns {
         private GlobalAccel_Data(){};
 
-        public static final Uri CONTENT_URI = Uri.parse("content://"+AUTHORITY+"/plugin_indoorsensor");
-        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.aware.plugin.indoorsensor";
-        public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.aware.plugin.indoorsensor";
+        public static final Uri CONTENT_URI = Uri.parse("content://"+AUTHORITY+"/sensor_global_accelerometer");
+        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.aware.sensor.global_accelerometer";
+        public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.aware.sensor.global_accelerometer";
 
         public static final String _ID = "id";
         public static final String TIMESTAMP = "timestamp";
@@ -72,11 +72,13 @@ public class GlobalAccelProvider extends ContentProvider {
     @Override
     public boolean onCreate() {
 
-        AUTHORITY = getContext().getPackageName() + ".provider.indoorsensor";
+        AUTHORITY = getContext().getPackageName() + ".sensor.global_accelerometer";
 
         URIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
         URIMatcher.addURI(AUTHORITY, DATABASE_TABLES[0], GACELLEROMETER);
         URIMatcher.addURI(AUTHORITY, DATABASE_TABLES[0] + "/#", GACELLEROMETER_ID);
+
+        Log.d("DB", AUTHORITY);
 
         databaseMap = new HashMap<String, String>();
         databaseMap.put(GlobalAccel_Data._ID, GlobalAccel_Data._ID);

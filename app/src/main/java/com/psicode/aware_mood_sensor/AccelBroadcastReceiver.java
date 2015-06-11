@@ -30,6 +30,7 @@ public class AccelBroadcastReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
 
+        /*
         Intent Acc_fall = new Intent(LinearAccelerometer.ACTION_AWARE_LINEAR_LABEL);
         Acc_fall.putExtra(LinearAccelerometer.EXTRA_LABEL, "Acceleration_fall_down");
         context.sendBroadcast(Acc_fall);
@@ -45,6 +46,8 @@ public class AccelBroadcastReceiver extends BroadcastReceiver {
         Intent gra_fall = new Intent(Gravity.ACTION_AWARE_GRAVITY_LABEL);
         gra_fall.putExtra(Gravity.EXTRA_LABEL, "Gravity_fall_down");
         context.sendBroadcast(gra_fall);
+
+        */
 
 //        ContentValues cv = intent.getParcelableExtra(LinearAccelerometer.EXTRA_DATA);
 //

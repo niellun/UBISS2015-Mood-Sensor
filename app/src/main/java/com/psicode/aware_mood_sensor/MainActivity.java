@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -28,24 +29,95 @@ import com.aware.providers.Gyroscope_Provider;
 import com.aware.providers.Linear_Accelerometer_Provider;
 import com.aware.providers.Rotation_Provider;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 public class MainActivity extends ActionBarActivity {
 
     private AccelBroadcastReceiver _receiver;
     private AccelerometerContentObserver _observer;
     private GlobalAccel gaccel;
+    private static final ScheduledExecutorService worker = Executors.newSingleThreadScheduledExecutor();
+    private static Button switcher_on;
+    private static TextView tv;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        TextView tv = (TextView)findViewById(R.id.main);
-        Button switcher_on = (Button)findViewById(R.id.button);
-        Button switcher_off = (Button)findViewById(R.id.button2);
-
-        gaccel = new GlobalAccel(getApplicationContext());
+        tv = (TextView) findViewById(R.id.main);
+        switcher_on = (Button) findViewById(R.id.button);
+        Button switcher_off = (Button) findViewById(R.id.button2);
 
         switcher_on.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+
+                // TURN LABLE ON
+
+                Log.d("BTN", "ON");
+
+                switcher_on.setText("THROW AWAY");
+
+                Intent Acc_fall = new Intent(LinearAccelerometer.ACTION_AWARE_LINEAR_LABEL);
+                Acc_fall.putExtra(LinearAccelerometer.EXTRA_LABEL, "FALL");
+                getApplicationContext().sendBroadcast(Acc_fall);
+
+                Intent gyo_fall = new Intent(Gyroscope.ACTION_AWARE_GYROSCOPE_LABEL);
+                gyo_fall.putExtra(Gyroscope.EXTRA_LABEL, "FALL");
+                getApplicationContext().sendBroadcast(gyo_fall);
+
+                Intent rota_fall = new Intent(Rotation.ACTION_AWARE_ROTATION_LABEL);
+                rota_fall.putExtra(Rotation.EXTRA_LABEL, "FALL");
+                getApplicationContext().sendBroadcast(rota_fall);
+
+                Intent gra_fall = new Intent(Gravity.ACTION_AWARE_GRAVITY_LABEL);
+                gra_fall.putExtra(Gravity.EXTRA_LABEL, "FALL");
+                getApplicationContext().sendBroadcast(gra_fall);
+
+
+
+
+                Runnable task = new Runnable() {
+
+                    public void run() {
+                        // TURN LABLE OFF
+
+                        Log.d("BTN", "OFF");
+
+                        runOnUiThread(new Runnable() {
+                            public void run() {
+                                // Update UI elements
+                                switcher_on.setText("TURN IT ON");
+                            }
+                        });
+
+
+
+                        Intent Acc_fall = new Intent(LinearAccelerometer.ACTION_AWARE_LINEAR_LABEL);
+                        Acc_fall.putExtra(LinearAccelerometer.EXTRA_LABEL, "");
+                        getApplicationContext().sendBroadcast(Acc_fall);
+
+                        Intent gyo_fall = new Intent(Gyroscope.ACTION_AWARE_GYROSCOPE_LABEL);
+                        gyo_fall.putExtra(Gyroscope.EXTRA_LABEL, "");
+                        getApplicationContext().sendBroadcast(gyo_fall);
+
+                        Intent rota_fall = new Intent(Rotation.ACTION_AWARE_ROTATION_LABEL);
+                        rota_fall.putExtra(Rotation.EXTRA_LABEL, "");
+                        getApplicationContext().sendBroadcast(rota_fall);
+
+                        Intent gra_fall = new Intent(Gravity.ACTION_AWARE_GRAVITY_LABEL);
+                        gra_fall.putExtra(Gravity.EXTRA_LABEL, "");
+                        getApplicationContext().sendBroadcast(gra_fall);
+
+
+
+                    }
+                };
+
+                worker.schedule(task, 5, TimeUnit.SECONDS);
+
+                /*
                 // Perform action on click
                 Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_LINEAR_ACCELEROMETER, true);
                 Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_GYROSCOPE, true);
@@ -58,11 +130,14 @@ public class MainActivity extends ActionBarActivity {
                 Toast.makeText(getApplicationContext(), "Sensors On!", Toast.LENGTH_SHORT).show();
 
                 sendBroadcast(new Intent(Aware.ACTION_AWARE_REFRESH));
+                */
             }
         });
 
         switcher_off.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+
+                /*
                 // Perform action on click
                 Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_LINEAR_ACCELEROMETER, false);
                 Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_GYROSCOPE, false);
@@ -71,8 +146,16 @@ public class MainActivity extends ActionBarActivity {
                 Toast.makeText(getApplicationContext(), "Sensors Off!", Toast.LENGTH_SHORT).show();
 
                 sendBroadcast(new Intent(Aware.ACTION_AWARE_REFRESH));
+
+                */
             }
         });
+
+        gaccel = new GlobalAccel(getApplicationContext());
+        Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_LINEAR_ACCELEROMETER, true);
+        Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_GYROSCOPE, true);
+        Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_ROTATION, true);
+        Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_GRAVITY, true);
 
         _receiver = new AccelBroadcastReceiver(tv);
         IntentFilter filter = new IntentFilter();

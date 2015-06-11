@@ -100,7 +100,7 @@ public class GlobalAccel implements SensorEventListener {
 
         if(event.sensor.getType()==Sensor.TYPE_LINEAR_ACCELERATION)
         {
-            Log.d("GlobalAccel", "X="+trueAcceleration[0]+" Y="+trueAcceleration[1]+" Z="+trueAcceleration[2]);
+            //Log.d("GlobalAccel", "X="+trueAcceleration[0]+" Y="+trueAcceleration[1]+" Z="+trueAcceleration[2]);
 
             ContentValues data = new ContentValues();
             data.put(GlobalAccelProvider.GlobalAccel_Data.TIMESTAMP, System.currentTimeMillis());
@@ -108,6 +108,8 @@ public class GlobalAccel implements SensorEventListener {
             data.put(GlobalAccelProvider.GlobalAccel_Data.VALUE_X, trueAcceleration[0]);
             data.put(GlobalAccelProvider.GlobalAccel_Data.VALUE_Y, trueAcceleration[1]);
             data.put(GlobalAccelProvider.GlobalAccel_Data.VALUE_Z, trueAcceleration[2]);
+
+            //Log.d("DB", " "+GlobalAccelProvider.GlobalAccel_Data.CONTENT_URI);
             mContext.getContentResolver().insert(GlobalAccelProvider.GlobalAccel_Data.CONTENT_URI, data);
 
             //TODO Broadcast
