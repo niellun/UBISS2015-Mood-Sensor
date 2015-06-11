@@ -4,6 +4,9 @@ import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.media.MediaPlayer;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.util.Log;
 import android.widget.TextView;
 
@@ -20,45 +23,70 @@ import com.aware.providers.Linear_Accelerometer_Provider;
  */
 public class SensorBroadcastReceiver extends BroadcastReceiver {
 
-   private TextView _tv;
+    private final Context _context;
+    private String _label;
+    private boolean _needSet;
 
+    public SensorBroadcastReceiver(Context context) {
+        _context = context;
+        _label = "";
+    }
 
-    public SensorBroadcastReceiver() {
+    public void SetSensorLabels(String label) {
+        _context.sendBroadcast(new Intent(LinearAccelerometer.ACTION_AWARE_LINEAR_LABEL)
+                .putExtra(LinearAccelerometer.EXTRA_LABEL, label));
 
-}
+        _context.sendBroadcast(new Intent(Gyroscope.ACTION_AWARE_GYROSCOPE_LABEL)
+                .putExtra(Gyroscope.EXTRA_LABEL, label));
+
+        _context.sendBroadcast(new Intent(Rotation.ACTION_AWARE_ROTATION_LABEL)
+                .putExtra(Rotation.EXTRA_LABEL, label));
+
+        _context.sendBroadcast(new Intent(Gravity.ACTION_AWARE_GRAVITY_LABEL)
+                .putExtra(Gravity.EXTRA_LABEL, label));
+    }
+
+    public void Start(String label) {
+        _label = label;
+        _needSet = true;
+    }
+
+    public void Stop() {
+        _needSet = false;
+        SetSensorLabels("");
+    }
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        if (intent.getAction() == LinearAccelerometer.ACTION_AWARE_LINEAR_LABEL) {
 
-        /*
-        Intent Acc_fall = new Intent(LinearAccelerometer.ACTION_AWARE_LINEAR_LABEL);
-        Acc_fall.putExtra(LinearAccelerometer.EXTRA_LABEL, "Acceleration_fall_down");
-        context.sendBroadcast(Acc_fall);
+            if (_needSet) {
+                double x = intent.getDoubleExtra(Linear_Accelerometer_Provider.Linear_Accelerometer_Data.VALUES_0, 0);
+                double y = intent.getDoubleExtra(Linear_Accelerometer_Provider.Linear_Accelerometer_Data.VALUES_1, 0);
+                double z = intent.getDoubleExtra(Linear_Accelerometer_Provider.Linear_Accelerometer_Data.VALUES_2, 0);
+                double len = x * x + y * y + z * z;
 
-        Intent gyo_fall = new Intent(Gyroscope.ACTION_AWARE_GYROSCOPE_LABEL);
-        gyo_fall.putExtra(Gyroscope.EXTRA_LABEL, "Gyroscope_fall_down");
-        context.sendBroadcast(gyo_fall);
+                if (len > 50) {
+                    _needSet = false;
+                    SetSensorLabels(_label);
 
-        Intent rota_fall = new Intent(Rotation.ACTION_AWARE_ROTATION_LABEL);
-        rota_fall.putExtra(Rotation.EXTRA_LABEL, "Rotation_fall_down");
-        context.sendBroadcast(rota_fall);
+                    MediaPlayer.create(_context, RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
+                            .start();
+                }
+            }
+        }
 
-        Intent gra_fall = new Intent(Gravity.ACTION_AWARE_GRAVITY_LABEL);
-        gra_fall.putExtra(Gravity.EXTRA_LABEL, "Gravity_fall_down");
-        context.sendBroadcast(gra_fall);
+        if (intent.getAction() == Gyroscope.ACTION_AWARE_GYROSCOPE_LABEL) {
 
-        */
+        }
 
-//        ContentValues cv = intent.getParcelableExtra(LinearAccelerometer.EXTRA_DATA);
-//
-//        double x = cv.getAsDouble(Linear_Accelerometer_Provider.Linear_Accelerometer_Data.VALUES_0);
-//        double y = cv.getAsDouble(Linear_Accelerometer_Provider.Linear_Accelerometer_Data.VALUES_1);
-//        double z = cv.getAsDouble(Linear_Accelerometer_Provider.Linear_Accelerometer_Data.VALUES_2);
-//
-//        double len = Math.sqrt(x * x + y * y + z * z);
-//        Log.d("BR", "Acceleration " + len);
-//        _tv.setText(Double.toString(len));
+        if (intent.getAction() == Rotation.ACTION_AWARE_ROTATION_LABEL) {
 
-       // Log.d("BR", cv.toString());
+        }
+
+        if (intent.getAction() == Gravity.ACTION_AWARE_GRAVITY_LABEL) {
+
+        }
+
     }
 }

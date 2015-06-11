@@ -1,11 +1,7 @@
 package com.psicode.aware_mood_sensor;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.media.MediaPlayer;
-import android.media.RingtoneManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
@@ -16,7 +12,6 @@ import android.widget.Button;
 import com.aware.Aware;
 import com.aware.Aware_Preferences;
 import com.aware.Gravity;
-import com.aware.Gyroscope;
 import com.aware.LinearAccelerometer;
 import com.aware.Rotation;
 
@@ -38,7 +33,7 @@ public class MainActivity extends ActionBarActivity {
         _counter = 0;
 
         // Set broadcast receiver
-        _broadcastReceiver = new SensorBroadcastReceiver();
+        _broadcastReceiver = new SensorBroadcastReceiver(getApplicationContext());
         IntentFilter filter = new IntentFilter();
         filter.addAction(LinearAccelerometer.ACTION_AWARE_LINEAR_ACCELEROMETER);
         filter.addAction(Rotation.ACTION_AWARE_ROTATION);
@@ -64,30 +59,10 @@ public class MainActivity extends ActionBarActivity {
         sendBroadcast(new Intent(Aware.ACTION_AWARE_REFRESH));
     }
 
-    private void SetSensorLabels(String label)
-    {
-        Context c = getApplicationContext();
-
-        c.sendBroadcast(new Intent(LinearAccelerometer.ACTION_AWARE_LINEAR_LABEL)
-                .putExtra(LinearAccelerometer.EXTRA_LABEL, label));
-
-        c.sendBroadcast(new Intent(Gyroscope.ACTION_AWARE_GYROSCOPE_LABEL)
-                .putExtra(Gyroscope.EXTRA_LABEL, label));
-
-        c.sendBroadcast(new Intent(Rotation.ACTION_AWARE_ROTATION_LABEL)
-                .putExtra(Rotation.EXTRA_LABEL, label));
-
-        c.sendBroadcast(new Intent(Gravity.ACTION_AWARE_GRAVITY_LABEL)
-                .putExtra(Gravity.EXTRA_LABEL, label));
-    }
-
     public void OnStartClick(View view) {
         _btnSwithOn.setText("THROW AWAY");
-        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
-        mp.start();
 
-        SetSensorLabels(_counter.toString());
+        _broadcastReceiver.Start(_counter.toString());
 
         _scheduler.schedule(OnStop, 5, TimeUnit.SECONDS);
     }
@@ -95,6 +70,7 @@ public class MainActivity extends ActionBarActivity {
     Runnable OnStop = new Runnable() {
 
         public void run() {
+            _broadcastReceiver.Stop();
 
             runOnUiThread(new Runnable() {
                 public void run() {
@@ -102,7 +78,6 @@ public class MainActivity extends ActionBarActivity {
                     _btnSwithOn.setText("TURN IT ON");
                 }
             });
-            SetSensorLabels("");
         }
     };
 
