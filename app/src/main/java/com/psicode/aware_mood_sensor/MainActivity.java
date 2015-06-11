@@ -28,6 +28,7 @@ public class MainActivity extends ActionBarActivity {
 
     private AccelBroadcastReceiver _receiver;
     private AccelerometerContentObserver _observer;
+    private GlobalAccel gaccel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +37,8 @@ public class MainActivity extends ActionBarActivity {
         TextView tv = (TextView)findViewById(R.id.main);
         Button switcher_on = (Button)findViewById(R.id.button);
         Button switcher_off = (Button)findViewById(R.id.button2);
+
+        gaccel = new GlobalAccel(getApplicationContext());
 
         switcher_on.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -67,6 +70,7 @@ public class MainActivity extends ActionBarActivity {
         filter.addAction(Gyroscope.ACTION_AWARE_GYROSCOPE);
         filter.addAction(Rotation.ACTION_AWARE_ROTATION);
         filter.addAction(Gravity.ACTION_AWARE_GRAVITY);
+        filter.addAction(GlobalAccel.ACTION_NEW_DATA);
         registerReceiver(_receiver, filter);
 
         _observer = new AccelerometerContentObserver(new Handler(), getApplicationContext());
@@ -91,6 +95,7 @@ public class MainActivity extends ActionBarActivity {
         //       Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_ACCELEROMETER, false);
         sendBroadcast(new Intent(Aware.ACTION_AWARE_REFRESH));
         unregisterReceiver(_receiver);
+        gaccel.Destroy();
     }
 
     @Override

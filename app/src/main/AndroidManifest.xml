@@ -23,6 +23,20 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <receiver android:name="com.psicode.aware_mood_sensor.GlobalAccel$Labeler" >
+            <intent-filter>
+                <action android:name="LinearAccelerometer.ACTION_AWARE_LINEAR_LABEL" />
+            </intent-filter>
+        </receiver>
+
+        <provider
+            android:name="com.psicode.aware_mood_sensor.GlobalAccelProvider"
+            android:authorities="com.aware.sensor.global_accelerometer"
+            android:enabled="true"
+            android:exported="true" >
+        </provider>
+
     </application>
 
 </manifest>
