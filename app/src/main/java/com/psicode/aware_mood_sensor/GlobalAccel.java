@@ -40,6 +40,7 @@ public class GlobalAccel implements SensorEventListener {
         @Override
         public void onReceive(Context context, Intent intent) {
             Label = intent.getStringExtra(LinearAccelerometer.EXTRA_LABEL);
+            Log.d("LBL", Label);
         }
     }
 
@@ -108,6 +109,7 @@ public class GlobalAccel implements SensorEventListener {
             data.put(GlobalAccelProvider.GlobalAccel_Data.VALUE_X, trueAcceleration[0]);
             data.put(GlobalAccelProvider.GlobalAccel_Data.VALUE_Y, trueAcceleration[1]);
             data.put(GlobalAccelProvider.GlobalAccel_Data.VALUE_Z, trueAcceleration[2]);
+            data.put(GlobalAccelProvider.GlobalAccel_Data.LABLE, Label);
 
             //Log.d("DB", " "+GlobalAccelProvider.GlobalAccel_Data.CONTENT_URI);
             mContext.getContentResolver().insert(GlobalAccelProvider.GlobalAccel_Data.CONTENT_URI, data);
