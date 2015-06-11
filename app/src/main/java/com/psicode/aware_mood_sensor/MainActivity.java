@@ -2,6 +2,9 @@ package com.psicode.aware_mood_sensor;
 
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.media.MediaPlayer;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
@@ -10,6 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.aware.Accelerometer;
 import com.aware.Aware;
@@ -48,6 +52,11 @@ public class MainActivity extends ActionBarActivity {
                 Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_ROTATION, true);
                 Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_GRAVITY, true);
 
+                Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                mp.start();
+                Toast.makeText(getApplicationContext(), "Sensors On!", Toast.LENGTH_SHORT).show();
+
                 sendBroadcast(new Intent(Aware.ACTION_AWARE_REFRESH));
             }
         });
@@ -59,6 +68,7 @@ public class MainActivity extends ActionBarActivity {
                 Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_GYROSCOPE, false);
                 Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_ROTATION, false);
                 Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_GRAVITY, false);
+                Toast.makeText(getApplicationContext(), "Sensors Off!", Toast.LENGTH_SHORT).show();
 
                 sendBroadcast(new Intent(Aware.ACTION_AWARE_REFRESH));
             }
