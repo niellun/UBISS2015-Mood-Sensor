@@ -2,125 +2,78 @@ package com.psicode.aware_mood_sensor;
 
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.aware.Accelerometer;
-import com.aware.Applications;
 import com.aware.Aware;
 import com.aware.Aware_Preferences;
-import com.aware.Locations;
-import com.aware.ESM;
+import com.aware.Gravity;
+import com.aware.Gyroscope;
+import com.aware.LinearAccelerometer;
+import com.aware.Rotation;
 import com.aware.providers.Accelerometer_Provider;
-import com.aware.providers.Applications_Provider;
-import com.aware.ui.ESM_Queue;
-import com.aware.providers.Communication_Provider;
-import com.aware.providers.Keyboard_Provider;
-import com.aware.providers.Locations_Provider;
-
+import com.aware.providers.Gravity_Provider;
+import com.aware.providers.Gyroscope_Provider;
+import com.aware.providers.Linear_Accelerometer_Provider;
+import com.aware.providers.Rotation_Provider;
 
 public class MainActivity extends ActionBarActivity {
 
     private AccelBroadcastReceiver _receiver;
     private AccelerometerContentObserver _observer;
-    private LocationBroadcastReceiver _receiverlocation;
-    private LocationContentObserver _observerlocation;
-    private ComContentObserver _observercommunication;
-    private AppContentObserver _observerapplication;
-    private KeyContentObserver _observerkeyboard;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         TextView tv = (TextView)findViewById(R.id.main);
-        TextView latitude = (TextView)findViewById(R.id.latitude);
+        Button switcher_on = (Button)findViewById(R.id.button);
+        Button switcher_off = (Button)findViewById(R.id.button2);
 
-        //Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_ACCELEROMETER, false);
-        Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_LOCATION_GPS, true);
-        Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_ESM, true);
-        Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_COMMUNICATION_EVENTS, true);
-        Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_CALLS, true);
-        Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_APPLICATIONS, true);
-        Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_NOTIFICATIONS, true);
-        Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_KEYBOARD, true);
-        Aware.setSetting(getApplicationContext(), Aware_Preferences.FREQUENCY_LOCATION_GPS, 20000);
-        Aware.setSetting(getApplicationContext(), Aware_Preferences.MIN_LOCATION_GPS_ACCURACY, 150);
-        Aware.setSetting(getApplicationContext(), Aware_Preferences.LOCATION_EXPIRATION_TIME, 300);
+        switcher_on.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                // Perform action on click
+                Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_LINEAR_ACCELEROMETER, true);
+                Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_GYROSCOPE, true);
+                Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_ROTATION, true);
+                Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_GRAVITY, true);
 
-        //Define the ESM to be displayed
-        String esmString = "[{'esm': {\n" +
-                "'esm_type': 4,\n" +
-                "'esm_title': 'ESM Likert',\n" +
-                "'esm_instructions': 'How happy are you?',\n" +
-                "'esm_likert_max': 5,\n" +
-                "'esm_likert_max_label': 'Sad',\n" +
-                "'esm_likert_min_label': 'Happy',\n" +
-                "'esm_likert_step': 1,\n" +
-                "'esm_submit': 'OK',\n" +
-                "'esm_expiration_threashold': 60,\n" +
-                "'esm_trigger': 'AWARE Tester'\n" +
-                "}}," +
-                "{'esm': {\n" +
-                "'esm_type': 4,\n" +
-                "'esm_title': 'ESM Likert',\n" +
-                "'esm_instructions': 'How calm are you?',\n" +
-                "'esm_likert_max': 5,\n" +
-                "'esm_likert_max_label': 'Angry',\n" +
-                "'esm_likert_min_label': 'Calm',\n" +
-                "'esm_likert_step': 1,\n" +
-                "'esm_submit': 'OK',\n" +
-                "'esm_expiration_threashold': 60,\n" +
-                "'esm_trigger': 'AWARE Tester'\n" +
-                "}},{'esm': {\n" +
-                "'esm_type': 4,\n" +
-                "'esm_title': 'ESM Likert',\n" +
-                "'esm_instructions': 'How in Love are you?',\n" +
-                "'esm_likert_max': 5,\n" +
-                "'esm_likert_max_label': 'Lonely',\n" +
-                "'esm_likert_min_label': 'In love',\n" +
-                "'esm_likert_step': 1,\n" +
-                "'esm_submit': 'OK',\n" +
-                "'esm_expiration_threashold': 60,\n" +
-                "'esm_trigger': 'AWARE Tester'\n" +
-                "}}]";
+                sendBroadcast(new Intent(Aware.ACTION_AWARE_REFRESH));
+            }
+        });
 
-        //Queue the ESM to be displayed when possible
-        Intent esm = new Intent(ESM.ACTION_AWARE_QUEUE_ESM);
-        esm.putExtra(ESM.EXTRA_ESM, esmString);
-        sendBroadcast(esm);
+        switcher_off.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                // Perform action on click
+                Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_LINEAR_ACCELEROMETER, false);
+                Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_GYROSCOPE, false);
+                Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_ROTATION, false);
+                Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_GRAVITY, false);
 
+                sendBroadcast(new Intent(Aware.ACTION_AWARE_REFRESH));
+            }
+        });
 
-       /* _receiver = new AccelBroadcastReceiver(tv);
+        _receiver = new AccelBroadcastReceiver(tv);
         IntentFilter filter = new IntentFilter();
-        filter.addAction(Accelerometer.ACTION_AWARE_ACCELEROMETER);
+        filter.addAction(LinearAccelerometer.ACTION_AWARE_LINEAR_ACCELEROMETER);
+        filter.addAction(Gyroscope.ACTION_AWARE_GYROSCOPE);
+        filter.addAction(Rotation.ACTION_AWARE_ROTATION);
+        filter.addAction(Gravity.ACTION_AWARE_GRAVITY);
         registerReceiver(_receiver, filter);
 
-        _receiverlocation = new LocationBroadcastReceiver(latitude);
-        IntentFilter filter_location = new IntentFilter();
-        filter_location.addAction(Locations.ACTION_AWARE_LOCATIONS);
-        filter_location.addAction(Locations.ACTION_AWARE_GPS_LOCATION_ENABLED);
-        registerReceiver(_receiverlocation, filter_location);
-
         _observer = new AccelerometerContentObserver(new Handler(), getApplicationContext());
-        getContentResolver().registerContentObserver(Accelerometer_Provider.Accelerometer_Data.CONTENT_URI, true, _observer);
-
-        _observerlocation = new LocationContentObserver(new Handler(), getApplicationContext());
-        getContentResolver().registerContentObserver(Locations_Provider.Locations_Data.CONTENT_URI, true, _observerlocation);
-
-        _observercommunication = new ComContentObserver(new Handler(), getApplicationContext());
-        getContentResolver().registerContentObserver(Communication_Provider.Calls_Data.CONTENT_URI, true, _observercommunication);
-
-        _observerapplication = new AppContentObserver(new Handler(), getApplicationContext());
-        getContentResolver().registerContentObserver(Applications_Provider.Applications_Notifications.CONTENT_URI, true, _observerapplication);
-
-        _observerkeyboard = new KeyContentObserver(new Handler(), getApplicationContext());
-        getContentResolver().registerContentObserver(Keyboard_Provider.Keyboard_Data.CONTENT_URI, true, _observerkeyboard);
+        getContentResolver().registerContentObserver(Linear_Accelerometer_Provider.Linear_Accelerometer_Data.CONTENT_URI, true, _observer);
+        getContentResolver().registerContentObserver(Gyroscope_Provider.Gyroscope_Data.CONTENT_URI, true, _observer);
+        getContentResolver().registerContentObserver(Rotation_Provider.Rotation_Data.CONTENT_URI, true, _observer);
+        getContentResolver().registerContentObserver(Gravity_Provider.Gravity_Data.CONTENT_URI, true, _observer);
 
         sendBroadcast(new Intent(Aware.ACTION_AWARE_REFRESH));
     }
@@ -135,23 +88,9 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
-        Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_ACCELEROMETER, false);
-        Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_ESM, false);
-        Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_LOCATION_GPS, false);
-        Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_COMMUNICATION_EVENTS, false);
-        Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_CALLS, false);
-        Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_APPLICATIONS, false);
-        Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_NOTIFICATIONS, false);
-        Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_KEYBOARD, false);
+        //       Aware.setSetting(getApplicationContext(), Aware_Preferences.STATUS_ACCELEROMETER, false);
         sendBroadcast(new Intent(Aware.ACTION_AWARE_REFRESH));
         unregisterReceiver(_receiver);
-        unregisterReceiver(_receiverlocation);
-        getContentResolver().unregisterContentObserver(_observer);
-        getContentResolver().unregisterContentObserver(_observerlocation);
-        getContentResolver().unregisterContentObserver(_observercommunication);
-        getContentResolver().unregisterContentObserver(_observerapplication);
-        getContentResolver().unregisterContentObserver(_observerkeyboard);
     }
 
     @Override
