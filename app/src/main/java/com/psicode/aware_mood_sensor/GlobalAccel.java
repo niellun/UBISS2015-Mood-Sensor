@@ -36,18 +36,15 @@ public class GlobalAccel implements SensorEventListener {
     public static final String Z = "Z_VALUE";
 
 
-    public static class Labeler extends BroadcastReceiver
-    {
+    public static class Labeler extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if(intent.hasExtra(LinearAccelerometer.EXTRA_LABEL)) {
+            if (intent.hasExtra(LinearAccelerometer.EXTRA_LABEL)) {
                 Label = intent.getStringExtra(LinearAccelerometer.EXTRA_LABEL);
-            }
-            else
-            {
+            } else {
                 Label = "";
             }
-            Log.d("LBL", " "+Label+"\r\n");
+            Log.d("LBL", " " + Label + "\r\n");
         }
     }
 
@@ -66,13 +63,12 @@ public class GlobalAccel implements SensorEventListener {
         mLinearAccelSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
         mGravitySensor = mSensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY);
         mMagneticSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
-        mSensorManager.registerListener(this, mLinearAccelSensor, SensorManager.SENSOR_DELAY_NORMAL);
-        mSensorManager.registerListener(this, mGravitySensor, SensorManager.SENSOR_DELAY_NORMAL);
-        mSensorManager.registerListener(this, mMagneticSensor, SensorManager.SENSOR_DELAY_NORMAL);
+        mSensorManager.registerListener(this, mLinearAccelSensor, SensorManager.SENSOR_DELAY_UI);
+        mSensorManager.registerListener(this, mGravitySensor, SensorManager.SENSOR_DELAY_GAME);
+        mSensorManager.registerListener(this, mMagneticSensor, SensorManager.SENSOR_DELAY_GAME);
     }
 
-    public void Destroy()
-    {
+    public void Destroy() {
         mSensorManager.unregisterListener(this);
     }
 
@@ -81,33 +77,31 @@ public class GlobalAccel implements SensorEventListener {
     public void onSensorChanged(SensorEvent event) {
         float[] trueAcceleration = new float[4];
 
-        synchronized (mGravity) {
 
-            if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
-                mMagnetic[0] = event.values[0];
-                mMagnetic[1] = event.values[1];
-                mMagnetic[2] = event.values[2];
-            }
-
-            if (event.sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION) {
-                float[] R = new float[16];
-                float[] RINV = new float[16];
-                float[] acc = new float[]{ event.values[0], event.values[1], event.values[2], 0};
-
-                SensorManager.getRotationMatrix(R, null, mGravity, mMagnetic);
-                Matrix.invertM(RINV, 0, R, 0);
-                Matrix.multiplyMV(trueAcceleration, 0, RINV, 0, acc, 0);
-            }
-
-            if (event.sensor.getType() == Sensor.TYPE_GRAVITY) {
-                mGravity[0] = event.values[0];
-                mGravity[1] = event.values[1];
-                mGravity[2] = event.values[2];
-            }
+        if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
+            mMagnetic[0] = event.values[0];
+            mMagnetic[1] = event.values[1];
+            mMagnetic[2] = event.values[2];
         }
 
-        if(event.sensor.getType()==Sensor.TYPE_LINEAR_ACCELERATION)
-        {
+        if (event.sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION) {
+            float[] R = new float[16];
+            float[] RINV = new float[16];
+            float[] acc = new float[]{event.values[0], event.values[1], event.values[2], 0};
+
+            SensorManager.getRotationMatrix(R, null, mGravity, mMagnetic);
+            Matrix.invertM(RINV, 0, R, 0);
+            Matrix.multiplyMV(trueAcceleration, 0, RINV, 0, acc, 0);
+        }
+
+        if (event.sensor.getType() == Sensor.TYPE_GRAVITY) {
+            mGravity[0] = event.values[0];
+            mGravity[1] = event.values[1];
+            mGravity[2] = event.values[2];
+        }
+
+
+        if (event.sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION) {
             //Log.d("GlobalAccel", "X="+trueAcceleration[0]+" Y="+trueAcceleration[1]+" Z="+trueAcceleration[2]);
 
             ContentValues data = new ContentValues();
