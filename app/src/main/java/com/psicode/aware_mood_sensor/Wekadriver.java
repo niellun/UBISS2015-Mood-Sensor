@@ -11,7 +11,7 @@ import weka.core.Instances;
 /**
  * Created by KAI on 2015/6/12.
  */
-public class driver {
+public class Wekadriver {
     public static void main(String[] args) throws Exception{
 
         // Declare two numeric attributes
